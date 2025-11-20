@@ -21,7 +21,24 @@ body {
 .calendar-card {
   width: 100%;
   margin: 0 auto;
-  overflow-x: auto;
+  overflow-x: auto;              /* keep horizontal scroll for the table */
+  
+  /* NEW: make card a flex column and control height */
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 200px);   /* adjust 200px if header/top spacing changes */
+}
+
+/* Only the calendar body scrolls vertically */
+.calendar-card .card-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+/* Header & footer stay outside the scrollable region */
+.calendar-card .card-header,
+.calendar-card .card-footer {
+  flex-shrink: 0;
 }
 
 /* Day cell + header cell widths */
@@ -246,11 +263,12 @@ td.calendar-day {
     margin-left: -12px;
     margin-right: -12px;
     border-radius: 0;
-    height: auto;              /* override any full-height behavior */
-    overflow-x: auto;          /* horizontal scroll for the table */
-    overflow-y: visible;
+    height: auto;             /* override fixed height on mobile */
+    overflow-x: auto;
   }
-
+  .calendar-card .card-body {
+    overflow-y: visible;      /* let the whole page scroll instead */
+  }
   /* Let the table size itself naturally on mobile */
   .calendar-table {
     height: auto;
