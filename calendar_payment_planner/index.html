@@ -38,88 +38,147 @@
           </p>
         </div>
         <div class="text-end mt-2 mt-sm-0">
-            <button class="btn btn-outline-secondary btn-sm me-2" id="today-btn">
+          <button class="btn btn-outline-secondary btn-sm me-2" id="today-btn">
             <i class="fa-solid fa-calendar-day me-1"></i> Today
-            </button>
-            <button style="display:none" class="btn btn-primary btn-sm me-2" id="add-today-payment-btn">
+          </button>
+          <button style="display:none" class="btn btn-primary btn-sm me-2" id="add-today-payment-btn">
             <i class="fa-solid fa-plus me-1"></i> Quick add payment for today
-            </button>
+          </button>
 
-            <!-- CSV controls -->
-            <button class="btn btn-outline-success btn-sm me-2" id="export-csv-btn">
+          <!-- CSV controls -->
+          <button class="btn btn-outline-success btn-sm me-2" id="export-csv-btn">
             <i class="fa-solid fa-file-arrow-down me-1"></i> Export CSV
-            </button>
-            <label class="btn btn-outline-secondary btn-sm mb-0">
+          </button>
+          <label class="btn btn-outline-secondary btn-sm mb-0">
             <i class="fa-solid fa-file-arrow-up me-1"></i> Import CSV
             <input type="file" id="import-csv-input" accept=".csv" hidden />
-            </label>
+          </label>
 
-            <button class="btn btn-danger btn-sm" id="clear-all-btn">
-              <i class="fa-solid fa-trash"></i> Clear All Data
-            </button>
-
+          <button class="btn btn-danger btn-sm" id="clear-all-btn">
+            <i class="fa-solid fa-trash"></i> Clear All Data
+          </button>
         </div>
       </div>
     </header>
 
-    <section class="card shadow-sm calendar-card">
-      <div class="card-header bg-white border-0 pb-0">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <button class="btn btn-outline-secondary btn-sm me-2" id="prev-month-btn">
-              <i class="fa-solid fa-chevron-left"></i>
-            </button>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="viewTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link active"
+          id="tab-calendar-btn"
+          data-bs-toggle="tab"
+          data-bs-target="#tab-calendar"
+          type="button"
+          role="tab"
+          aria-controls="tab-calendar"
+          aria-selected="true"
+        >
+          Calendar
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="tab-day-btn"
+          data-bs-toggle="tab"
+          data-bs-target="#tab-day"
+          type="button"
+          role="tab"
+          aria-controls="tab-day"
+          aria-selected="false"
+        >
+          Day view (Today)
+        </button>
+      </li>
+    </ul>
 
-            <button class="btn btn-outline-secondary btn-sm" id="next-month-btn">
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
+    <div class="tab-content">
+      <!-- Calendar tab -->
+      <div
+        class="tab-pane fade show active"
+        id="tab-calendar"
+        role="tabpanel"
+        aria-labelledby="tab-calendar-btn"
+      >
+        <section class="card shadow-sm calendar-card">
+          <div class="card-header bg-white border-0 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <button class="btn btn-outline-secondary btn-sm me-2" id="prev-month-btn">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
 
+                <button class="btn btn-outline-secondary btn-sm" id="next-month-btn">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+              <div class="text-center flex-grow-1">
+                <h2 class="h5 mb-0" id="current-month-label">Month Year</h2>
+                <div class="text-muted small" id="current-month-summary"></div>
+              </div>
+              <div class="text-end">
+                <span class="badge bg-light text-dark border">
+                  <i class="fa-solid fa-circle me-1" style="font-size: 0.5rem;"></i>
+                  Daily and weekly totals shown in calendar
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="text-center flex-grow-1">
-            <h2 class="h5 mb-0" id="current-month-label">Month Year</h2>
-            <div class="text-muted small" id="current-month-summary"></div>
+
+          <div class="card-body pt-3">
+            <div class="table-responsive">
+              <table class="calendar-table">
+                <thead>
+                  <tr>
+                    <th class="text-center">Mon</th>
+                    <th class="text-center">Tue</th>
+                    <th class="text-center">Wed</th>
+                    <th class="text-center">Thu</th>
+                    <th class="text-center">Fri</th>
+                    <th class="text-center">Sat</th>
+                    <th class="text-center">Sun</th>
+                    <th class="week-total-cell">💰 Week total</th>
+                  </tr>
+                </thead>
+                <tbody id="calendar-body">
+                  <!-- Calendar rows injected by JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div class="text-end">
-            <span class="badge bg-light text-dark border">
-              <i class="fa-solid fa-circle me-1" style="font-size: 0.5rem;"></i>
-              Daily and weekly totals shown in calendar
-            </span>
+
+          <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center">
+            <div class="month-footer">
+              💰 Month total:
+              <span id="month-total-amount">0.00</span>
+            </div>
+            <div class="text-muted small mt-2 mt-sm-0">
+              Tip: click any day to view or edit payments and notes.
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Day view tab (always shows TODAY) -->
+      <div
+        class="tab-pane fade"
+        id="tab-day"
+        role="tabpanel"
+        aria-labelledby="tab-day-btn"
+      >
+        <div class="card shadow-sm">
+          <div class="card-header bg-white" id="today-tab-header">
+            Day view (Today)
+          </div>
+          <div class="card-body" id="today-tab-body">
+            <p class="text-muted mb-0">
+              No data yet for today.
+            </p>
           </div>
         </div>
       </div>
-
-      <div class="card-body pt-3">
-        <div class="table-responsive">
-          <table class="calendar-table">
-            <thead>
-              <tr>
-                <th class="text-center">Mon</th>
-                <th class="text-center">Tue</th>
-                <th class="text-center">Wed</th>
-                <th class="text-center">Thu</th>
-                <th class="text-center">Fri</th>
-                <th class="text-center">Sat</th>
-                <th class="text-center">Sun</th>
-                <th class="week-total-cell">💰 Week total</th>
-              </tr>
-            </thead>
-            <tbody id="calendar-body">
-              <!-- Calendar rows injected by JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center">
-        <div class="month-footer">
-          💰 Month total:
-          <span id="month-total-amount">0.00</span>
-        </div>
-        <div class="text-muted small mt-2 mt-sm-0">
-          Tip: click any day to view or edit payments and notes.
-        </div>
-      </div>
-    </section>
+    </div>
   </div>
 
   <!-- Day Modal -->
