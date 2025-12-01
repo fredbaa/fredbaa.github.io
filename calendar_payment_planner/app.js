@@ -19,6 +19,7 @@ function init() {
   bindControls();
   loadFromStoredCsv();      // <--- load CSV (if any) from localStorage
   renderCalendar();
+  renderTodayView();        // <--- render Today tab
 
   // Start with empty payment form
   resetPaymentForm();
@@ -63,8 +64,7 @@ function bindControls() {
     .addEventListener("change", handleImportCsvFile);
 
   document.getElementById("clear-all-btn")
-  .addEventListener("click", clearAllData);
-
+    .addEventListener("click", clearAllData);
 }
 
 function changeMonth(delta) {
@@ -77,6 +77,7 @@ function changeMonth(delta) {
     state.currentYear += 1;
   }
   renderCalendar();
+  renderTodayView();
 }
 
 function goToToday() {
@@ -84,6 +85,7 @@ function goToToday() {
   state.currentYear = today.getFullYear();
   state.currentMonth = today.getMonth();
   renderCalendar();
+  renderTodayView();
 }
 
 function handleQuickAddTodayPayment() {
@@ -109,7 +111,7 @@ function makeDateFromKey(key) {
 
 function formatCurrency(amount) {
   if (!isFinite(amount)) return "0.00";
-  return "Php "+ amount.toLocaleString(undefined, {
+  return "Php " + amount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -192,6 +194,7 @@ function renderCalendar() {
   calendarBody.innerHTML = "";
 
   let monthTotal = 0;
+  const todayKey = dateToKey(new Date()); // for highlighting
 
   weeks.forEach((week) => {
     const tr = document.createElement("tr");
@@ -215,6 +218,11 @@ function renderCalendar() {
       monthTotal += dayTotal;
 
       td.className = "calendar-day";
+
+      // Highlight today's date
+      if (dateKey === todayKey) {
+        td.classList.add("calendar-day-today");
+      }
 
       // Day header
       const dayHeader = document.createElement("div");
@@ -316,6 +324,94 @@ function renderCalendar() {
       ? `${countPayments} payments in this month`
       : "No payments yet this month";
 }
+
+// Day view tab (always TODAY)
+function renderTodayView() {
+  const headerEl = document.getElementById("today-tab-header");
+  const bodyEl = document.getElementById("today-tab-body");
+  if (!headerEl || !bodyEl) return;
+
+  const today = new Date();
+  const todayKey = dateToKey(today);
+  const label = formatDisplayDate(todayKey);
+
+  headerEl.textContent = `Day view (Today) — ${label}`;
+
+  const dayPayments = getPaymentsByDateKey(todayKey);
+  const dayNotes = getNotesByDateKey(todayKey);
+  const dayTotal = dayPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+  let html = "";
+
+  // ---- PAYMENTS WITH EDIT BUTTONS ----
+  html += `<h6 class="mb-2">Payments (${dayPayments.length})</h6>`;
+  if (dayPayments.length === 0) {
+    html += `<p class="text-muted">No payments logged for today.</p>`;
+  } else {
+    html += `<ul class="list-group mb-3">`;
+    dayPayments.forEach((p) => {
+      html += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">${p.name}</div>
+            <div class="text-muted small">${formatCurrency(p.amount)}</div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            data-payment-id="${p.id}"
+          >
+            Edit
+          </button>
+        </li>
+      `;
+    });
+    html += `</ul>`;
+  }
+
+  // ---- NOTES (read-only for now) ----
+  html += `<h6 class="mb-2">Notes (${dayNotes.length})</h6>`;
+  if (dayNotes.length === 0) {
+    html += `<p class="text-muted">No notes for today.</p>`;
+  } else {
+    html += `<ul class="list-group mb-3">`;
+    dayNotes.forEach((n) => {
+      html += `
+        <li class="list-group-item">
+          <div class="small">${n.text}</div>
+        </li>
+      `;
+    });
+    html += `</ul>`;
+  }
+
+  // ---- TOTAL ----
+  html += `
+    <div class="mt-2">
+      <strong>Total for today:</strong> ${formatCurrency(dayTotal)}
+    </div>
+  `;
+
+  bodyEl.innerHTML = html;
+
+  // ---- WIRE EDIT BUTTONS ----
+  const editButtons = bodyEl.querySelectorAll("[data-payment-id]");
+  editButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const paymentId = parseInt(btn.getAttribute("data-payment-id"), 10);
+      const payment = state.payments.find((p) => p.id === paymentId);
+      if (!payment) return;
+
+      const dateKey = payment.date;
+      state.selectedDate = dateKey;
+
+      // Open the modal for that date and jump straight into edit mode
+      openDayModal(dateKey);
+      startEditPayment(paymentId);
+    });
+  });
+}
+
 
 // Day modal
 function openDayModal(dateKey) {
@@ -462,6 +558,7 @@ function handlePaymentFormSubmit(e) {
   resetPaymentForm();
   renderDayDetails(dateKey);
   renderCalendar();
+  renderTodayView();
   saveCsvToStorage(); 
 }
 
@@ -485,6 +582,7 @@ function deletePayment(paymentId) {
       renderDayDetails(dateKey);
     }
     renderCalendar();
+    renderTodayView();
     saveCsvToStorage(); 
   }
 }
@@ -512,7 +610,7 @@ function handleNoteFormSubmit(e) {
   resetNoteForm();
   renderDayDetails(dateKey);
   renderCalendar();
-  
+  renderTodayView();
   saveCsvToStorage(); 
 }
 
@@ -525,9 +623,11 @@ function deleteNote(noteId) {
       renderDayDetails(dateKey);
     }
     renderCalendar();
+    renderTodayView();
     saveCsvToStorage(); 
   }
 }
+
 // ---------- CSV helpers ----------
 // Simple CSV format with header:
 // type,date,name,amount,text
@@ -684,6 +784,7 @@ function handleImportCsvFile(event) {
     parseCsvString(text);
     saveCsvToStorage();
     renderCalendar();
+    renderTodayView();
 
     // If a day modal is open, refresh it
     if (state.selectedDate) {
@@ -707,13 +808,13 @@ function clearAllData() {
   localStorage.removeItem(STORAGE_KEY);
 
   renderCalendar();
+  renderTodayView();
 
   // If the modal is open, refresh or close it
   if (state.selectedDate) {
     renderDayDetails(state.selectedDate);
   }
 }
-
 
 // Init
 document.addEventListener("DOMContentLoaded", init);
