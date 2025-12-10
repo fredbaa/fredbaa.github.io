@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resort Map Gallery</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: #4b5563;
+    }
+
+    /* Two-column layout: left = map, right = gallery */
+    .layout {
+      width: 100vw;
+      max-width: none;
+      margin: 0;
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .map-column {
+      flex: 1.6;                  /* give more width to the map */
+      min-width: 0;
+    }
+
+    .gallery-column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+    }
+
+    /* MAP */
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 220px); /* make the map tall (adjust if needed) */
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      background: #000;
+    }
+
+    .map-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;        /* whole map visible; use 'cover' if you want edge-to-edge crop */
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease, color 0.1s ease;
+    }
+
+    .hotspot:hover {
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      background: #ffffff;
+    }
+
+    .hotspot:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+
+    .hotspot.active {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+    }
+
+    /* GALLERY (right side) */
+    .gallery-container {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 220px); /* same height as map, scroll inside */
+    }
+
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .gallery-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .gallery-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .thumbnails {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px; /* a bit of breathing room near scrollbar */
+    }
+
+    .thumb {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #e5e7eb;
+      aspect-ratio: 4 / 3;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    .thumb:hover img {
+      transform: scale(1.05);
+    }
+
+    .thumb-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 4px 6px;
+      font-size: 11px;
+      color: #f9fafb;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    }
+
+    .empty-state {
+      font-size: 14px;
+      color: #6b7280;
+      padding: 8px 0;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      font-size: 28px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Mobile / small screens: stack map and gallery */
+    @media (max-width: 900px) {
+      body {
+        padding: 10px;
+      }
+
+      .layout {
+        flex-direction: column;
+      }
+
+      .map-wrapper,
+      .gallery-container {
+        height: auto;
+        max-height: none;
+      }
+
+      .gallery-container {
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Resort Map</h1>
+  <p>Tap a cottage or area on the map to see its photos on the right.</p>
+
+  <div class="layout">
+    <!-- LEFT: MAP -->
+    <div class="map-column">
+      <div class="map-wrapper">
+        <img id="resort-map" src="" alt="" />
+        <!-- Hotspots injected here -->
+      </div>
+    </div>
+
+    <!-- RIGHT: GALLERY -->
+    <div class="gallery-column">
+      <div class="gallery-container">
+        <div class="gallery-header">
+          <div class="gallery-title" id="gallery-title">
+            Select an area on the map
+          </div>
+          <div class="gallery-subtitle" id="gallery-subtitle">
+            No area selected
+          </div>
+        </div>
+        <div id="thumbnails" class="thumbnails"></div>
+        <div id="gallery-empty" class="empty-state">
+          Click on any cottage or area to view its photo gallery.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox">
+    <div id="lightbox-close" class="lightbox-close">&times;</div>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <!-- Load your config FIRST -->
+  <script src="config.js"></script>
+
+  <script>
+    const mapImg = document.getElementById("resort-map");
+    const mapWrapper = document.querySelector(".map-wrapper");
+
+    const thumbnailsEl = document.getElementById("thumbnails");
+    const emptyStateEl = document.getElementById("gallery-empty");
+    const titleEl = document.getElementById("gallery-title");
+    const subtitleEl = document.getElementById("gallery-subtitle");
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const lightboxClose = document.getElementById("lightbox-close");
+
+    // Set map image from config.js
+    mapImg.src = typeof MAP_IMAGE_SRC !== "undefined" ? MAP_IMAGE_SRC : "";
+    mapImg.alt = typeof MAP_IMAGE_ALT !== "undefined" ? MAP_IMAGE_ALT : "Resort map";
+
+    // Build hotspots from HOTSPOTS config
+    let hotspotButtons = [];
+
+    if (Array.isArray(HOTSPOTS)) {
+      HOTSPOTS.forEach(spot => {
+        const btn = document.createElement("button");
+        btn.className = "hotspot";
+        btn.textContent = spot.label || spot.id;
+        btn.style.top = (spot.top || 0) + "%";
+        btn.style.left = (spot.left || 0) + "%";
+        btn.dataset.areaId = spot.id;
+
+        btn.addEventListener("click", () => {
+          setActiveHotspot(btn);
+          renderGallery(spot.id);
+        });
+
+        mapWrapper.appendChild(btn);
+        hotspotButtons.push(btn);
+      });
+    }
+
+    function setActiveHotspot(activeBtn) {
+      hotspotButtons.forEach(btn => {
+        btn.classList.toggle("active", btn === activeBtn);
+      });
+    }
+
+    function renderGallery(areaId) {
+      const areas = typeof RESORT_AREAS !== "undefined" ? RESORT_AREAS : {};
+      const area = areas[areaId];
+
+      if (!area) {
+        titleEl.textContent = "Unknown area";
+        subtitleEl.textContent = "This spot has no gallery defined yet in config.js.";
+        thumbnailsEl.innerHTML = "";
+        emptyStateEl.style.display = "block";
+        return;
+      }
+
+      titleEl.textContent = area.name || areaId;
+      subtitleEl.textContent = area.description || "";
+
+      thumbnailsEl.innerHTML = "";
+      const imgs = Array.isArray(area.images) ? area.images : [];
+
+      if (!imgs.length) {
+        emptyStateEl.style.display = "block";
+        return;
+      }
+
+      emptyStateEl.style.display = "none";
+
+      imgs.forEach((img, index) => {
+        const div = document.createElement("div");
+        div.className = "thumb";
+
+        const imageEl = document.createElement("img");
+        imageEl.src = img.src;
+        imageEl.alt = (area.name || areaId) + " " + (index + 1);
+
+        const label = document.createElement("div");
+        label.className = "thumb-label";
+        label.textContent = img.label || "";
+
+        div.appendChild(imageEl);
+        div.appendChild(label);
+
+        div.addEventListener("click", () => openLightbox(img.src));
+
+        thumbnailsEl.appendChild(div);
+      });
+    }
+
+    function openLightbox(src) {
+      lightboxImg.src = src;
+      lightbox.classList.add("open");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("open");
+      lightboxImg.src = "";
+    }
+
+    lightboxClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  </script>
+</body>
+</html>
