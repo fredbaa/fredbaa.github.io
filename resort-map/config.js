@@ -55,14 +55,14 @@ const RESORT_AREAS = {
     name: "Pool Area",
     description: "Central pool with lounge chairs.",
     images: [
-      { src: "images/pool-area.jpg", label: "Poolside" },
+      { src: "images/pool-area.webp", label: "Poolside" },
     ]
   },
   beach: {
     name: "Beachfront",
     description: "Direct access to the beach.",
     images: [
-      { src: "images/beach.jpg", label: "Shoreline" },
+      { src: "images/beach.webp", label: "Shoreline" },
     ]
   }
 };
