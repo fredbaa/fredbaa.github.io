@@ -31,7 +31,7 @@
     }
 
     .map-column {
-      flex: 1.6;                  /* give more width to the map */
+      flex: 1.6;
       min-width: 0;
     }
 
@@ -45,7 +45,6 @@
     .map-wrapper {
       position: relative;
       width: 100%;
-      /* let height be dictated by the image */
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
@@ -68,7 +67,13 @@
       font-size: 12px;
       cursor: pointer;
       white-space: nowrap;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease, color 0.1s ease;
+      transition:
+        transform 0.1s ease,
+        box-shadow 0.1s ease,
+        background 0.1s ease,
+        color 0.1s ease,
+        opacity 0.1s ease,
+        border-color 0.1s ease;
     }
 
     .hotspot:hover {
@@ -83,9 +88,29 @@
     }
 
     .hotspot.active {
-      background: #2563eb;
-      color: #ffffff;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+    }
+
+    /* Status-specific styles for hotspots */
+    .hotspot-available {
+      background: rgba(255,255,255,0.95);
+      color: #111827;
+      border-color: #d1d5db;
+      opacity: 1;
+    }
+
+    .hotspot-reserved {
+      background: #fef9c3;
+      color: #854d0e;
+      border-color: #facc15;
+      opacity: 1;
+    }
+
+    .hotspot-unavailable {
+      background: #e5e7eb;
+      color: #6b7280;
+      border-color: #9ca3af;
+      opacity: 0.65;
     }
 
     /* GALLERY (right side) */
@@ -97,21 +122,30 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 220px); /* same height as map, scroll inside */
+      max-height: calc(100vh - 220px);
     }
 
     .gallery-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
 
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
     .gallery-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .gallery-subtitle {
@@ -119,12 +153,111 @@
       color: #6b7280;
     }
 
+    /* Big status badge beside the name */
+    .status-badge {
+      display: inline-flex;           /* key fix: prevents full-width stretch */
+      align-items: center;
+      justify-content: center;
+      width: fit-content;             /* shrink-wrap to text */
+      max-width: max-content;         /* extra safety */
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      background: #e5e7eb;
+      color: #374151;
+      white-space: nowrap;
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+
+    .status-badge.status-available {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-badge.status-reserved {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .status-badge.status-unavailable {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+
+    /* Area details (price, pax, amenities, times) */
+    .area-details {
+      font-size: 13px;
+      margin-bottom: 10px;
+      /* no divider anymore */
+    }
+
+    .area-meta-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 3px;
+      align-items: baseline;
+    }
+
+    .area-meta-label {
+      font-weight: 500;
+      color: #4b5563;
+      min-width: 70px;
+    }
+
+    .area-meta-value {
+      color: #111827;
+    }
+
+    .area-meta-amenities-row {
+      align-items: flex-start;
+    }
+
+    .area-amenities-list {
+      list-style: disc;
+      margin: 0;
+      padding-left: 18px;
+      color: #111827;
+    }
+
+    /* Status buttons (below photos) */
+    .status-actions {
+      display: none; /* hidden until an area is selected */
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .status-btn {
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      cursor: pointer;
+      color: #374151;
+      transition: background 0.1s ease, border-color 0.1s ease, transform 0.05s ease;
+    }
+
+    .status-btn:hover {
+      background: #e5e7eb;
+      transform: translateY(-1px);
+    }
+
+    .status-btn.active-status {
+      border-color: #2563eb;
+      color: #1d4ed8;
+      background: #eff6ff;
+    }
+
+    /* Thumbnails right after amenities */
     .thumbnails {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 10px;
       overflow-y: auto;
-      padding-right: 4px; /* a bit of breathing room near scrollbar */
+      padding-right: 4px;
     }
 
     .thumb {
@@ -163,6 +296,27 @@
       font-size: 14px;
       color: #6b7280;
       padding: 8px 0;
+    }
+
+    /* Reset-all container below the panes */
+    .reset-all-container {
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    .reset-all-btn {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      color: #b91c1c;
+      cursor: pointer;
+      transition: background 0.1s ease, border-color 0.1s ease;
+    }
+
+    .reset-all-btn:hover {
+      background: #fee2e2;
     }
 
     /* Lightbox */
@@ -207,7 +361,6 @@
         padding: 12px 16px 0 16px;
       }
 
-      /* FORCE vertical stacking */
       .layout {
         flex-direction: column !important;
         gap: 0;
@@ -219,7 +372,6 @@
         flex: none;
       }
 
-      /* MAP ON TOP */
       .map-wrapper {
         width: 100%;
         border-radius: 0;
@@ -230,13 +382,11 @@
         height: auto;
       }
 
-      /* Bigger touch targets */
       .hotspot {
         font-size: 14px;
         padding: 6px 12px;
       }
 
-      /* GALLERY ON BOTTOM */
       .gallery-container {
         width: 100%;
         border-radius: 0;
@@ -245,7 +395,7 @@
       }
 
       .gallery-title {
-        font-size: 17px;
+        font-size: 18px;
       }
 
       .gallery-subtitle {
@@ -261,12 +411,16 @@
         font-size: 12px;
         padding: 6px;
       }
+
+      .reset-all-container {
+        padding: 0 14px 10px;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Resort Map</h1>
-  <p>Tap a cottage or area on the map to see its photos on the right.</p>
+  <p>Tap a cottage or area on the map to see its details and photos.</p>
 
   <div class="layout">
     <!-- LEFT: MAP -->
@@ -277,23 +431,68 @@
       </div>
     </div>
 
-    <!-- RIGHT: GALLERY -->
+    <!-- RIGHT: DETAILS + PHOTOS -->
     <div class="gallery-column">
       <div class="gallery-container">
         <div class="gallery-header">
-          <div class="gallery-title" id="gallery-title">
-            Select an area on the map
-          </div>
-          <div class="gallery-subtitle" id="gallery-subtitle">
-            No area selected
+          <div class="title-block">
+            <div class="gallery-title">
+              <span id="gallery-title">Select an area on the map</span>
+            </div>
+
+            <!-- STATUS NOW DIRECTLY UNDER NAME -->
+            <div class="status-badge" id="status-badge">—</div>
+
+            <!-- DESCRIPTION NOW BELOW STATUS -->
+            <div class="gallery-subtitle" id="gallery-subtitle">
+              No area selected
+            </div>
           </div>
         </div>
+
+        <!-- Area details (price, pax, amenities, times) -->
+        <div class="area-details" id="area-details" style="display:none;">
+          <div class="area-meta-row">
+            <span class="area-meta-label">Price:</span>
+            <span class="area-meta-value" id="meta-price">–</span>
+          </div>
+          <div class="area-meta-row">
+            <span class="area-meta-label">Pax:</span>
+            <span class="area-meta-value" id="meta-pax">–</span>
+          </div>
+          <div class="area-meta-row">
+            <span class="area-meta-label">Check-in:</span>
+            <span class="area-meta-value" id="meta-checkin">–</span>
+          </div>
+          <div class="area-meta-row">
+            <span class="area-meta-label">Check-out:</span>
+            <span class="area-meta-value" id="meta-checkout">–</span>
+          </div>
+          <div class="area-meta-row area-meta-amenities-row">
+            <span class="area-meta-label">Amenities:</span>
+            <ul class="area-amenities-list" id="meta-amenities"></ul>
+          </div>
+        </div>
+
+        <!-- Photos (right after amenities) -->
         <div id="thumbnails" class="thumbnails"></div>
         <div id="gallery-empty" class="empty-state">
           Click on any cottage or area to view its photo gallery.
         </div>
+
+        <!-- Status buttons below photos -->
+        <div class="status-actions" id="status-actions">
+          <button class="status-btn" data-status="available">Available</button>
+          <button class="status-btn" data-status="reserved">Reserved</button>
+          <button class="status-btn" data-status="unavailable">Unavailable</button>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Reset all below the two panes -->
+  <div class="reset-all-container">
+    <button class="reset-all-btn" id="reset-all-statuses">Reset all</button>
   </div>
 
   <!-- Lightbox -->
@@ -306,25 +505,104 @@
   <script src="config.js"></script>
 
   <script>
-    const mapImg = document.getElementById("resort-map");
-    const mapWrapper = document.querySelector(".map-wrapper");
+    const mapImg      = document.getElementById("resort-map");
+    const mapWrapper  = document.querySelector(".map-wrapper");
 
     const thumbnailsEl = document.getElementById("thumbnails");
     const emptyStateEl = document.getElementById("gallery-empty");
-    const titleEl = document.getElementById("gallery-title");
-    const subtitleEl = document.getElementById("gallery-subtitle");
+    const titleEl      = document.getElementById("gallery-title");
+    const subtitleEl   = document.getElementById("gallery-subtitle");
 
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
+    const areaDetailsEl   = document.getElementById("area-details");
+    const metaPriceEl     = document.getElementById("meta-price");
+    const metaPaxEl       = document.getElementById("meta-pax");
+    const metaCheckinEl   = document.getElementById("meta-checkin");
+    const metaCheckoutEl  = document.getElementById("meta-checkout");
+    const metaAmenitiesEl = document.getElementById("meta-amenities");
+
+    const statusBadgeEl   = document.getElementById("status-badge");
+    const statusActionsEl = document.getElementById("status-actions");
+    const statusButtons   = document.querySelectorAll(".status-btn[data-status]");
+    const resetAllBtn     = document.getElementById("reset-all-statuses");
+
+    const lightbox     = document.getElementById("lightbox");
+    const lightboxImg  = document.getElementById("lightbox-img");
     const lightboxClose = document.getElementById("lightbox-close");
 
-    // Set map image from config.js
+    const STATUS_STORAGE_KEY = "resort_area_statuses_v1";
+    let hotspotButtons = [];
+    let currentAreaId = null;
+
+    // Load map image from config.js
     mapImg.src = typeof MAP_IMAGE_SRC !== "undefined" ? MAP_IMAGE_SRC : "";
     mapImg.alt = typeof MAP_IMAGE_ALT !== "undefined" ? MAP_IMAGE_ALT : "Resort map";
 
-    // Build hotspots from HOTSPOTS config
-    let hotspotButtons = [];
+    // Load statuses from localStorage
+    let areaStatuses = loadStatuses();
 
+    function loadStatuses() {
+      try {
+        const raw = localStorage.getItem(STATUS_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (e) {
+        console.warn("Failed to read statuses from localStorage", e);
+        return {};
+      }
+    }
+
+    function saveStatuses() {
+      try {
+        localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(areaStatuses));
+      } catch (e) {
+        console.warn("Failed to save statuses to localStorage", e);
+      }
+    }
+
+    function getStatus(areaId) {
+      return areaStatuses[areaId] || "available";
+    }
+
+    function statusLabel(status) {
+      if (status === "available")   return "Available";
+      if (status === "reserved")    return "Reserved";
+      if (status === "unavailable") return "Unavailable";
+      return "Unknown";
+    }
+
+    function applyHotspotStatus(btn, status) {
+      btn.classList.remove("hotspot-available", "hotspot-reserved", "hotspot-unavailable");
+      btn.classList.add("hotspot-" + status);
+    }
+
+    function updateStatusBadge(areaId) {
+      if (!areaId) {
+        statusBadgeEl.textContent = "—";
+        statusBadgeEl.className = "status-badge";
+        statusButtons.forEach(b => b.classList.remove("active-status"));
+        return;
+      }
+
+      const status = getStatus(areaId);
+      statusBadgeEl.textContent = statusLabel(status);
+      statusBadgeEl.className = "status-badge status-" + status;
+
+      statusButtons.forEach(btn => {
+        const s = btn.getAttribute("data-status");
+        btn.classList.toggle("active-status", s === status);
+      });
+    }
+
+    function updateAllHotspots() {
+      hotspotButtons.forEach(btn => {
+        const areaId = btn.dataset.areaId;
+        const status = getStatus(areaId);
+        applyHotspotStatus(btn, status);
+      });
+    }
+
+    // Build hotspots from HOTSPOTS config
     if (Array.isArray(HOTSPOTS)) {
       HOTSPOTS.forEach(spot => {
         const btn = document.createElement("button");
@@ -334,9 +612,19 @@
         btn.style.left = (spot.left || 0) + "%";
         btn.dataset.areaId = spot.id;
 
+        // Apply initial status style
+        const initialStatus = getStatus(spot.id);
+        applyHotspotStatus(btn, initialStatus);
+
         btn.addEventListener("click", () => {
           setActiveHotspot(btn);
           renderGallery(spot.id);
+
+          // On mobile, scroll gallery into view
+          if (window.innerWidth <= 900) {
+            document.querySelector(".gallery-container")
+              .scrollIntoView({ behavior: "smooth" });
+          }
         });
 
         mapWrapper.appendChild(btn);
@@ -353,47 +641,76 @@
     function renderGallery(areaId) {
       const areas = typeof RESORT_AREAS !== "undefined" ? RESORT_AREAS : {};
       const area = areas[areaId];
+      currentAreaId = areaId;
 
       if (!area) {
         titleEl.textContent = "Unknown area";
         subtitleEl.textContent = "This spot has no gallery defined yet in config.js.";
         thumbnailsEl.innerHTML = "";
         emptyStateEl.style.display = "block";
+
+        areaDetailsEl.style.display = "none";
+        statusActionsEl.style.display = "none";
+        updateStatusBadge(areaId);
         return;
       }
 
       titleEl.textContent = area.name || areaId;
       subtitleEl.textContent = area.description || "";
 
+      // Show and populate area details
+      areaDetailsEl.style.display = "block";
+      metaPriceEl.textContent    = area.price || "–";
+      metaPaxEl.textContent      = area.pax ? area.pax + " pax" : "–";
+      metaCheckinEl.textContent  = area.checkin || "–";
+      metaCheckoutEl.textContent = area.checkout || "–";
+
+      metaAmenitiesEl.innerHTML = "";
+      if (Array.isArray(area.amenities) && area.amenities.length) {
+        area.amenities.forEach(am => {
+          const li = document.createElement("li");
+          li.textContent = am;
+          metaAmenitiesEl.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "No amenities listed.";
+        metaAmenitiesEl.appendChild(li);
+      }
+
+      // Thumbnails (right after amenities)
       thumbnailsEl.innerHTML = "";
       const imgs = Array.isArray(area.images) ? area.images : [];
 
       if (!imgs.length) {
         emptyStateEl.style.display = "block";
-        return;
+      } else {
+        emptyStateEl.style.display = "none";
+        imgs.forEach((img, index) => {
+          const div = document.createElement("div");
+          div.className = "thumb";
+
+          const imageEl = document.createElement("img");
+          imageEl.src = img.src;
+          imageEl.alt = (area.name || areaId) + " " + (index + 1);
+
+          const label = document.createElement("div");
+          label.className = "thumb-label";
+          label.textContent = img.label || "";
+
+          div.appendChild(imageEl);
+          div.appendChild(label);
+
+          div.addEventListener("click", () => openLightbox(img.src));
+
+          thumbnailsEl.appendChild(div);
+        });
       }
 
-      emptyStateEl.style.display = "none";
+      // Show status buttons
+      statusActionsEl.style.display = "flex";
 
-      imgs.forEach((img, index) => {
-        const div = document.createElement("div");
-        div.className = "thumb";
-
-        const imageEl = document.createElement("img");
-        imageEl.src = img.src;
-        imageEl.alt = (area.name || areaId) + " " + (index + 1);
-
-        const label = document.createElement("div");
-        label.className = "thumb-label";
-        label.textContent = img.label || "";
-
-        div.appendChild(imageEl);
-        div.appendChild(label);
-
-        div.addEventListener("click", () => openLightbox(img.src));
-
-        thumbnailsEl.appendChild(div);
-      });
+      updateStatusBadge(areaId);
     }
 
     function openLightbox(src) {
@@ -410,6 +727,34 @@
     lightbox.addEventListener("click", (e) => {
       if (e.target === lightbox) {
         closeLightbox();
+      }
+    });
+
+    // Status buttons logic
+    statusButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (!currentAreaId) return; // nothing selected yet
+        const newStatus = btn.getAttribute("data-status");
+        areaStatuses[currentAreaId] = newStatus;
+        saveStatuses();
+        updateStatusBadge(currentAreaId);
+
+        const hotspot = hotspotButtons.find(b => b.dataset.areaId === currentAreaId);
+        if (hotspot) {
+          applyHotspotStatus(hotspot, newStatus);
+        }
+      });
+    });
+
+    // Reset all statuses to "available"
+    resetAllBtn.addEventListener("click", () => {
+      areaStatuses = {};
+      saveStatuses();
+      updateAllHotspots();
+      if (currentAreaId) {
+        updateStatusBadge(currentAreaId);
+      } else {
+        updateStatusBadge(null);
       }
     });
   </script>
