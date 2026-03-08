@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fred Baa — Staff Backend Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f2ec;
+    --accent: #c84b2f;
+    --muted: #888070;
+    --rule: #d6d0c4;
+    --highlight: #fff8e7;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Instrument Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.6;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 4rem 0 2.5rem;
+    border-bottom: 2px solid var(--ink);
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .name-block h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  .name-block h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .name-block .title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.75rem;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  .header-meta a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+    transition: color 0.2s;
+  }
+
+  .header-meta a:hover { color: var(--accent); }
+
+  /* ── MAIN GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 0;
+    align-items: start;
+  }
+
+  /* ── CONTENT (LEFT) ── */
+  .content {
+    padding: 3rem 3rem 4rem 0;
+    border-right: 1px solid var(--rule);
+  }
+
+  /* ── SIDEBAR (RIGHT) ── */
+  .sidebar {
+    padding: 3rem 0 4rem 2.5rem;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  section:nth-child(1) { animation-delay: 0.1s; }
+  section:nth-child(2) { animation-delay: 0.2s; }
+  section:nth-child(3) { animation-delay: 0.3s; }
+  section:nth-child(4) { animation-delay: 0.4s; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── SUMMARY ── */
+  .summary p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #2a2a2a;
+  }
+
+  .summary p + p { margin-top: 0.75rem; }
+
+  /* ── EXPERIENCE ── */
+  .job {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .job:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.25rem;
+  }
+
+  .job-company {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+  }
+
+  .job-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .job-role {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  .job-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+
+  .job-desc {
+    font-size: 0.9rem;
+    color: #3a3530;
+    margin-bottom: 1rem;
+    line-height: 1.65;
+  }
+
+  .contributions {
+    list-style: none;
+    margin-bottom: 1rem;
+  }
+
+  .contributions li {
+    font-size: 0.875rem;
+    color: #3a3530;
+    line-height: 1.6;
+    padding-left: 1.25rem;
+    position: relative;
+    margin-bottom: 0.4rem;
+  }
+
+  .contributions li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.75rem;
+    top: 0.05em;
+  }
+
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .tech-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    background: var(--highlight);
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .tech-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── SIDEBAR SECTIONS ── */
+  .sidebar-section {
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.7s ease both;
+    animation-delay: 0.3s;
+  }
+
+  .sidebar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── SKILL GROUPS ── */
+  .skill-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .skill-group-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.45rem;
+  }
+
+  .skill-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .skill-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── EDUCATION ── */
+  .edu-item {
+    margin-bottom: 1rem;
+  }
+
+  .edu-school {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .edu-degree {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.67rem;
+    color: var(--muted);
+  }
+
+  /* ── CERT ── */
+  .cert-item {
+    font-size: 0.82rem;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+  }
+
+  .cert-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.67rem;
+    color: var(--muted);
+  }
+
+  /* ── PRINT BUTTON ── */
+  .print-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 100;
+  }
+
+  .print-btn:hover { background: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .content { border-right: none; padding: 2rem 0 0; }
+    .sidebar { padding: 2rem 0; border-top: 1px solid var(--rule); }
+    .header-meta { text-align: left; }
+    .header-inner { flex-direction: column; align-items: flex-start; }
+    .print-btn { display: none; }
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; font-size: 10pt; }
+    body::before { display: none; }
+    .print-btn { display: none; }
+    .main-grid { grid-template-columns: 1fr 220px; }
+    header { padding: 1.5rem 0 1rem; }
+    .content { padding: 1.5rem 2rem 0 0; }
+    .sidebar { padding: 1.5rem 0 0 1.5rem; }
+    section { margin-bottom: 1.5rem; }
+    .job { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
+    @page { margin: 1.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="name-block">
+        <h1>Fred <em>Baa</em></h1>
+        <p class="title">Staff Backend Engineer &nbsp;·&nbsp; Singapore</p>
+      </div>
+      <div class="header-meta">
+        <div>📍 Singapore</div>
+        <div><a href="https://github.com/fredbaa" target="_blank">github.com/fredbaa</a></div>
+        <div><a href="https://linkedin.com/in/fredbaa" target="_blank">linkedin.com/in/fredbaa</a></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main-grid">
+
+    <!-- LEFT: CONTENT -->
+    <main class="content">
+
+      <!-- SUMMARY -->
+      <section class="summary">
+        <div class="section-label">Profile</div>
+        <p>Staff-level backend engineer with 15+ years of experience designing and delivering scalable distributed systems across enterprise SaaS, proptech, streaming media, and healthcare technology. Currently driving data platform and real-time reporting infrastructure at Zendesk, with a consistent track record of leading engineering teams and shipping high-impact backend systems used by millions of users.</p>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section>
+        <div class="section-label">Experience</div>
+
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">Zendesk Pte Ltd</span>
+            <span class="job-period">2021 – Present</span>
+          </div>
+          <div class="job-role">Tech Lead · Staff Software Engineer</div>
+          <div class="job-location">Singapore</div>
+          <ul class="contributions">
+            <li>Built and executed pipelines to migrate legacy chat customers and their data to Zendesk Suite plans framework</li>
+            <li>Bootstrapped backend framework for omni-channel realtime reporting in Zendesk Explore using Scala, Kafka, and Flink</li>
+            <li>Built omni-channel reporting pipelines and ingestion system with Looker, Kafka, and ClickHouse to support real-time analytics</li>
+            <li>Helped mentor junior engineers on system design and best practices</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Python</span><span class="tech-tag">Scala</span><span class="tech-tag">Java</span><span class="tech-tag">Kafka</span><span class="tech-tag">MySQL</span><span class="tech-tag">ClickHouse</span><span class="tech-tag">Redis</span><span class="tech-tag">Celery</span><span class="tech-tag">Flink</span>
+          </div>
+        </div>
+
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">99.co</span>
+            <span class="job-period">2019 – 2021</span>
+          </div>
+          <div class="job-role">Dev Lead · Senior Backend Engineer</div>
+          <div class="job-location">Singapore</div>
+          <p class="job-desc">Lead backend development for one of Southeast Asia's largest property marketplaces, building scalable microservices supporting listings, agents, payments, and consumer marketplace features.</p>
+          <ul class="contributions">
+            <li>Technical lead for a product squad responsible for consumer experience features across the 99.co property platform</li>
+            <li>Designed and maintained cloud-native microservices architecture supporting core marketplace functionality including listings, payments, and user services</li>
+            <li>Built cross-platform listing synchronization platform integrating property listings across multiple 99 Group portals (SRX and iProperty Singapore)</li>
+            <li>Implemented scalable backend services deployed on Kubernetes-based infrastructure in Google Cloud Platform</li>
+            <li>Collaborated cross-functionally with product and frontend teams to deliver high-impact features for consumer property search</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Python</span><span class="tech-tag">Kubernetes</span><span class="tech-tag">Docker</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">MongoDB</span><span class="tech-tag">Redis</span><span class="tech-tag">GCP</span><span class="tech-tag">Travis CI</span>
+          </div>
+        </div>
+
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">Spuul Pte Ltd</span>
+            <span class="job-period">2015 – 2019</span>
+          </div>
+          <div class="job-role">Backend Lead · Software Engineer</div>
+          <div class="job-location">Singapore</div>
+          <p class="job-desc">Led backend engineering for a streaming media platform delivering video content across web and mobile applications.</p>
+          <ul class="contributions">
+            <li>Led the backend team responsible for core APIs and integrations powering streaming video services</li>
+            <li>Designed and built serverless architecture using AWS Lambda and API Gateway for processing Electronic Program Guide (EPG) data for live channels</li>
+            <li>Implemented integrations with payment gateways and telecom partners enabling subscription and billing workflows</li>
+            <li>Developed scalable backend APIs supporting media content delivery and client applications</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Ruby</span><span class="tech-tag">Ruby on Rails</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">AWS</span><span class="tech-tag">Lambda</span><span class="tech-tag">API Gateway</span>
+          </div>
+        </div>
+
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">Caresharing Inc.</span>
+            <span class="job-period">2010 – 2015</span>
+          </div>
+          <div class="job-role">Team Lead · Software Engineer</div>
+          <div class="job-location">Cebu, Philippines</div>
+          <p class="job-desc">Built healthcare software platforms supporting patient communication, clinical data management, and collaboration tools used by medical organizations.</p>
+          <ul class="contributions">
+            <li>Led development of microservices-based analytics and data platforms supporting healthcare providers and medical groups in the Netherlands</li>
+            <li>Built collaboration tools for chronic disease management and patient administration used by clinics and healthcare teams</li>
+            <li>Developed mobile and web applications enabling doctor-patient communication and care coordination</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-tag">Ruby</span><span class="tech-tag">Ruby on Rails</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+          </div>
+        </div>
+
+        <div class="job">
+          <div class="job-header">
+            <span class="job-company">NCR Corporation</span>
+            <span class="job-period">2008</span>
+          </div>
+          <div class="job-role">Software Engineering Intern</div>
+          <div class="job-location">Cebu, Philippines</div>
+          <p class="job-desc">Developed internal biometric authentication software for employee time tracking using Java and fingerprint recognition SDKs.</p>
+          <div class="tech-stack">
+            <span class="tech-tag">Java</span><span class="tech-tag">Biometrics SDK</span>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- RIGHT: SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- SKILLS -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Technical Skills</div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">Languages</div>
+          <div class="skill-items">
+            <span class="skill-pill">Python</span>
+            <span class="skill-pill">Ruby</span>
+            <span class="skill-pill">Java</span>
+            <span class="skill-pill">Scala</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">Databases</div>
+          <div class="skill-items">
+            <span class="skill-pill">PostgreSQL</span>
+            <span class="skill-pill">MySQL</span>
+            <span class="skill-pill">MongoDB</span>
+            <span class="skill-pill">Redis</span>
+            <span class="skill-pill">ClickHouse</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">Messaging & Streaming</div>
+          <div class="skill-items">
+            <span class="skill-pill">Kafka</span>
+            <span class="skill-pill">Flink</span>
+            <span class="skill-pill">Celery</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">Cloud</div>
+          <div class="skill-items">
+            <span class="skill-pill">AWS</span>
+            <span class="skill-pill">GCP</span>
+            <span class="skill-pill">Lambda</span>
+            <span class="skill-pill">API Gateway</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">DevOps & Infra</div>
+          <div class="skill-items">
+            <span class="skill-pill">Kubernetes</span>
+            <span class="skill-pill">Docker</span>
+            <span class="skill-pill">GitHub Actions</span>
+            <span class="skill-pill">Travis CI</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-name">Architecture</div>
+          <div class="skill-items">
+            <span class="skill-pill">Microservices</span>
+            <span class="skill-pill">REST APIs</span>
+            <span class="skill-pill">Distributed Systems</span>
+            <span class="skill-pill">Event-driven</span>
+            <span class="skill-pill">Serverless</span>
+            <span class="skill-pill">Data Pipelines</span>
+            <span class="skill-pill">Real-time Analytics</span>
+            <span class="skill-pill">Cloud-native</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Education</div>
+        <div class="edu-item">
+          <div class="edu-school">University of San Carlos</div>
+          <div class="edu-degree">BS Computer Science</div>
+        </div>
+      </div>
+
+      <!-- CERTIFICATIONS -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Certifications</div>
+        <div class="cert-item">
+          AWS Certified Developer<br>
+          <span style="font-weight:600;">Associate</span>
+        </div>
+        <div class="cert-year">2018 – 2020</div>
+      </div>
+
+      <!-- INDUSTRIES -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Industries</div>
+        <div class="skill-items" style="flex-direction:column; gap:0.3rem;">
+          <span style="font-size:0.8rem; color:#3a3530;">🏢 &nbsp;Enterprise SaaS</span>
+          <span style="font-size:0.8rem; color:#3a3530;">🏠 &nbsp;Proptech</span>
+          <span style="font-size:0.8rem; color:#3a3530;">🎬 &nbsp;Streaming Media</span>
+          <span style="font-size:0.8rem; color:#3a3530;">🏥 &nbsp;Healthcare Tech</span>
+          <span style="font-size:0.8rem; color:#3a3530;">🏦 &nbsp;Fintech / Payments</span>
+        </div>
+      </div>
+
+    </aside>
+  </div><!-- end main-grid -->
+
+  <footer>
+    <span>Fred Baa &mdash; Singapore</span>
+    <span>fredbaa on GitHub &amp; LinkedIn</span>
+  </footer>
+</div><!-- end page -->
+
+<button class="print-btn" onclick="window.print()">⬇ Save · Print</button>
+
+</body>
+</html>
